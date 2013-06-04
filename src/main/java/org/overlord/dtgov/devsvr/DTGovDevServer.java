@@ -36,6 +36,7 @@ import org.overlord.commons.dev.server.discovery.WebAppModuleFromIDEDiscoveryStr
 import org.overlord.commons.gwt.server.filters.GWTCacheControlFilter;
 import org.overlord.commons.gwt.server.filters.ResourceCacheControlFilter;
 import org.overlord.commons.ui.header.OverlordHeaderDataJS;
+import org.overlord.dtgov.devsvr.mock.MockTaskClient;
 import org.overlord.dtgov.ui.server.DtgovUI;
 import org.overlord.sramp.repository.jcr.JCRRepository;
 import org.overlord.sramp.server.atom.services.SRAMPApplication;
@@ -75,6 +76,8 @@ public class DTGovDevServer extends ErraiDevServer {
         System.setProperty("dtgov-ui.atom-api.authentication.provider", "org.overlord.dtgov.ui.server.api.NoAuthenticationProvider");
         // Don't do any resource caching!
         System.setProperty("overlord.resource-caching.disabled", "true");
+        // Mock version of the task client
+        System.setProperty("dtgov-ui.task-client.class", MockTaskClient.class.getName());
     }
 
     /**
