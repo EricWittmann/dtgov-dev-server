@@ -161,6 +161,21 @@ public class DTGovDevServer extends ErraiDevServer {
 
 
         handlers.addHandler(dtgovUI);
+        handlers.addHandler(srampServer);
+    }
+
+    /**
+     * @see org.overlord.commons.dev.server.DevServer#postStart(org.overlord.commons.dev.server.DevServerEnvironment)
+     */
+    @Override
+    protected void postStart(DevServerEnvironment environment) throws Exception {
+        System.out.println("----------  Seeding the Repository  ---------------");
+
+//        SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:8080/s-ramp-server");
+
+        System.out.println("----------  DONE  ---------------");
+        System.out.println("Now try:  \n  http://localhost:8080/dtgov/index.html");
+        System.out.println("---------------------------------");
     }
 
 }
