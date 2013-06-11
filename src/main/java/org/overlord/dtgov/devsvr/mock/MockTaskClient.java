@@ -19,14 +19,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.overlord.dtgov.ui.client.shared.beans.TaskActionEnum;
 import org.overlord.dtgov.ui.client.shared.beans.TaskBean;
 import org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean;
 import org.overlord.dtgov.ui.client.shared.beans.TaskInboxResultSetBean;
 import org.overlord.dtgov.ui.client.shared.beans.TaskSummaryBean;
-import org.overlord.dtgov.ui.server.api.ITaskClient;
+import org.overlord.dtgov.ui.server.services.tasks.ITaskClient;
 
 /**
  * A mock task client that provides sample data.
@@ -51,17 +53,67 @@ public class MockTaskClient implements ITaskClient {
             bean.setOwner((random.nextInt(111) % 4) == 0 ? "ewittman" : null);
             bean.setPriority(random.nextInt(3));
             bean.setStatus(MockTaskStatus.Ready.toString());
+            bean.setType("mock-task");
             if (random.nextInt() % 2 > 0) {
                 bean.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta.");
             }
-            bean.setGroup("developers");
             bean.addAllowedAction(TaskActionEnum.claim);
-            bean.addAllowedAction(TaskActionEnum.save);
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR, i);
             bean.setDueDate(cal.getTime());
+            bean.setTaskForm(createTaskForm(i));
+            bean.setTaskData(createTaskData(i));
             tasks.add(bean);
         }
+    }
+
+    /**
+     * Creates a mock task form.
+     * @param taskId
+     */
+    private static String createTaskForm(int taskId) {
+        return  "<div>" +
+                "<form>\r\n" +
+                "  <fieldset>\r\n" +
+                "    <label>Task Field 1</label>\r\n" +
+                "    <input name=\"task-field-1\" type=\"text\" placeholder=\"Type something...\"></input>\r\n" +
+                "    <label class=\"checkbox\">\r\n" +
+                "      <input name=\"task-field-2\" type=\"checkbox\"> Task Field 2</input>\r\n" +
+                "    </label>\r\n" +
+                "    <label>Task Field 3</label>\r\n" +
+                "    <input name=\"task-field-3\" type=\"text\"></input>\r\n" +
+                "    <label>Task Field 4</label>\r\n" +
+                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-1\">Option 1</input>\r\n" +
+                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-2\">Option 2</input>\r\n" +
+                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-3\">Option 3</input>\r\n" +
+                "    <span class=\"help-block\">Enter a short description below:</span>\r\n" +
+                "    <textarea name=\"task-field-5\" rows=\"3\" cols=\"40\"></textarea>\r\n" +
+                "    <label>Task Field 6</label>\r\n" +
+                "    <select name=\"task-field-6\">\r\n" +
+                "      <option value=\"option-1\">Option 1</option>\r\n" +
+                "      <option value=\"option-2\">Option 2</option>\r\n" +
+                "      <option value=\"option-3\">Option 3</option>\r\n" +
+                "      <option value=\"option-4\">Option 4</option>\r\n" +
+                "    </select>\r\n" +
+                "  </fieldset>\r\n" +
+                "</form>\r\n" +
+                "" +
+                "</div>";
+    }
+
+    /**
+     * Creates mock task data.
+     * @param taskId
+     */
+    private static Map<String, String> createTaskData(int taskId) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("task-field-1", "Hello World");
+        data.put("task-field-2", "true");
+        data.put("task-field-3", "Foo Bar");
+        data.put("task-field-4", "option-2");
+        data.put("task-field-5", "Creates a mock task form.");
+        data.put("task-field-6", "option-3");
+        return data;
     }
 
     /**
@@ -71,7 +123,7 @@ public class MockTaskClient implements ITaskClient {
     }
 
     /**
-     * @see org.overlord.dtgov.ui.server.api.ITaskClient#getTasks(org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean, int, int)
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#getTasks(org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean, int, int)
      */
     @Override
     public TaskInboxResultSetBean getTasks(TaskInboxFilterBean filters, int startIndex, int endIndex) {
@@ -114,7 +166,7 @@ public class MockTaskClient implements ITaskClient {
     }
 
     /**
-     * @see org.overlord.dtgov.ui.server.api.ITaskClient#getTask(java.lang.String)
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#getTask(java.lang.String)
      */
     @Override
     public TaskBean getTask(String taskId) {
@@ -127,7 +179,7 @@ public class MockTaskClient implements ITaskClient {
     }
 
     /**
-     * @see org.overlord.dtgov.ui.server.api.ITaskClient#updateTask(org.overlord.dtgov.ui.client.shared.beans.TaskBean)
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#updateTask(org.overlord.dtgov.ui.client.shared.beans.TaskBean)
      */
     @Override
     public void updateTask(TaskBean task) {
@@ -139,7 +191,7 @@ public class MockTaskClient implements ITaskClient {
     }
 
     /**
-     * @see org.overlord.dtgov.ui.server.api.ITaskClient#executeAction(org.overlord.dtgov.ui.client.shared.beans.TaskBean, org.overlord.dtgov.ui.client.shared.beans.TaskActionEnum)
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#executeAction(org.overlord.dtgov.ui.client.shared.beans.TaskBean, org.overlord.dtgov.ui.client.shared.beans.TaskActionEnum)
      */
     @Override
     public TaskBean executeAction(TaskBean task, TaskActionEnum action) throws Exception {
@@ -149,18 +201,20 @@ public class MockTaskClient implements ITaskClient {
         }
         if (action == TaskActionEnum.claim) {
             doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release,
-                    TaskActionEnum.start, TaskActionEnum.save, TaskActionEnum.fail, TaskActionEnum.complete);
+                    TaskActionEnum.start, TaskActionEnum.fail, TaskActionEnum.complete);
         } else if (action == TaskActionEnum.release) {
-            doAction(ptask, null, MockTaskStatus.Ready, TaskActionEnum.claim, TaskActionEnum.save);
+            doAction(ptask, null, MockTaskStatus.Ready, TaskActionEnum.claim);
         } else if (action == TaskActionEnum.start) {
-            doAction(ptask, null, MockTaskStatus.InProgress, TaskActionEnum.stop, TaskActionEnum.release, TaskActionEnum.save, TaskActionEnum.complete, TaskActionEnum.fail);
+            doAction(ptask, "currentuser", MockTaskStatus.InProgress, TaskActionEnum.stop, TaskActionEnum.release, TaskActionEnum.complete, TaskActionEnum.fail);
         } else if (action == TaskActionEnum.stop) {
-            doAction(ptask, null, MockTaskStatus.Reserved, TaskActionEnum.release,
-                    TaskActionEnum.start, TaskActionEnum.save, TaskActionEnum.fail, TaskActionEnum.complete);
+            doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release,
+                    TaskActionEnum.start, TaskActionEnum.fail, TaskActionEnum.complete);
         } else if (action == TaskActionEnum.complete) {
             doAction(ptask, null, MockTaskStatus.Completed);
+            ptask.setTaskData(task.getTaskData());
         } else if (action == TaskActionEnum.fail) {
             doAction(ptask, null, MockTaskStatus.Failed);
+            ptask.setTaskData(task.getTaskData());
         } else {
             throw new Exception("Action " + action + " not supported.");
         }

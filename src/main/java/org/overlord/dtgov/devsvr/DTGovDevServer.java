@@ -15,10 +15,12 @@
  */
 package org.overlord.dtgov.devsvr;
 
+import java.io.InputStream;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -26,6 +28,7 @@ import org.jboss.errai.bus.server.servlet.DefaultBlockingServlet;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener;
 import org.jboss.weld.environment.servlet.Listener;
+import org.oasis_open.docs.s_ramp.ns.s_ramp_v1.BaseArtifactType;
 import org.overlord.commons.dev.server.DevServerEnvironment;
 import org.overlord.commons.dev.server.ErraiDevServer;
 import org.overlord.commons.dev.server.MultiDefaultServlet;
@@ -38,6 +41,13 @@ import org.overlord.commons.gwt.server.filters.ResourceCacheControlFilter;
 import org.overlord.commons.ui.header.OverlordHeaderDataJS;
 import org.overlord.dtgov.devsvr.mock.MockTaskClient;
 import org.overlord.dtgov.ui.server.DtgovUI;
+import org.overlord.dtgov.ui.server.DtgovUIConfig;
+import org.overlord.dtgov.ui.server.services.sramp.NoAuthenticationProvider;
+import org.overlord.dtgov.ui.server.services.tasks.BasicAuthenticationProvider;
+import org.overlord.dtgov.ui.server.services.tasks.DtGovTaskApiClient;
+import org.overlord.sramp.client.SrampAtomApiClient;
+import org.overlord.sramp.common.ArtifactType;
+import org.overlord.sramp.common.SrampModelUtils;
 import org.overlord.sramp.repository.jcr.JCRRepository;
 import org.overlord.sramp.server.atom.services.SRAMPApplication;
 
@@ -65,6 +75,14 @@ public class DTGovDevServer extends ErraiDevServer {
     }
 
     /**
+     * @see org.overlord.commons.dev.server.DevServer#serverPort()
+     */
+    @Override
+    protected int serverPort() {
+        return 8088;
+    }
+
+    /**
      * @see org.overlord.commons.dev.server.DevServer#preConfig()
      */
     @Override
@@ -72,12 +90,37 @@ public class DTGovDevServer extends ErraiDevServer {
         // Use an in-memory config for s-ramp
         System.setProperty("sramp.modeshape.config.url", "classpath://" + JCRRepository.class.getName()
                 + "/META-INF/modeshape-configs/inmemory-sramp-config.json");
-        // No authentication provider - the s-ramp server is not protected
-        System.setProperty("dtgov-ui.atom-api.authentication.provider", "org.overlord.dtgov.ui.server.api.NoAuthenticationProvider");
+
         // Don't do any resource caching!
         System.setProperty("overlord.resource-caching.disabled", "true");
-        // Mock version of the task client
-        System.setProperty("dtgov-ui.task-client.class", MockTaskClient.class.getName());
+
+        // Configure the S-RAMP client
+        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_ENDPOINT, "http://localhost:" + serverPort() + "/s-ramp-server");
+        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_VALIDATING, "true");
+        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_AUTH_PROVIDER, NoAuthenticationProvider.class.getName());
+
+        // Configure the task client
+        enableMockTaskClient();
+//        enableLiveTaskClient();
+    }
+
+    /**
+     * Enables the mock task client (does not require jbpm or any sort of REST based task api endpoint).
+     */
+    protected void enableMockTaskClient() {
+        System.setProperty(DtgovUIConfig.TASK_CLIENT_CLASS, MockTaskClient.class.getName());
+    }
+
+    /**
+     * Enables the live jbpm/dtgov based task client.  This requires the dtgov REST based task api
+     * to be running.
+     */
+    protected void enableLiveTaskClient() {
+        System.setProperty(DtgovUIConfig.TASK_CLIENT_CLASS, DtGovTaskApiClient.class.getName());
+        System.setProperty(DtgovUIConfig.TASK_API_ENDPOINT, "http://localhost:8080/dtgov/rest/tasks");
+        System.setProperty(DtgovUIConfig.TASK_API_AUTH_PROVIDER, BasicAuthenticationProvider.class.getName());
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_USER, "eric");
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_PASS, "eric");
     }
 
     /**
@@ -169,13 +212,34 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     @Override
     protected void postStart(DevServerEnvironment environment) throws Exception {
-        System.out.println("----------  Seeding the Repository  ---------------");
+        System.out.println("----------  Seeding  ---------------");
 
-//        SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:8080/s-ramp-server");
+        SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:"+serverPort()+"/s-ramp-server");
+        seedTaskForm(client);
 
         System.out.println("----------  DONE  ---------------");
-        System.out.println("Now try:  \n  http://localhost:8080/dtgov/index.html");
+        System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov/index.html");
         System.out.println("---------------------------------");
+    }
+
+    /**
+     * @param client
+     */
+    private void seedTaskForm(SrampAtomApiClient client) throws Exception {
+        InputStream is = null;
+
+        // Ontology #1
+        try {
+            is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html");
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("OverlordTaskForm"), is, "mock-task.form.html");
+            artifact.setDescription("The starter task form that goes with the mock task client.  It maps to a task type of 'task-type-1'.");
+            artifact.setVersion("1.0");
+            SrampModelUtils.setCustomProperty(artifact, "task-type", "mock-task");
+            client.updateArtifactMetaData(artifact);
+            System.out.println("PDF added");
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
 }
