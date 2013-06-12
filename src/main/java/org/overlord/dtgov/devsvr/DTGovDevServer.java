@@ -45,6 +45,9 @@ import org.overlord.dtgov.ui.server.DtgovUIConfig;
 import org.overlord.dtgov.ui.server.services.sramp.NoAuthenticationProvider;
 import org.overlord.dtgov.ui.server.services.tasks.BasicAuthenticationProvider;
 import org.overlord.dtgov.ui.server.services.tasks.DtGovTaskApiClient;
+import org.overlord.dtgov.ui.server.servlets.DeploymentDownloadServlet;
+import org.overlord.dtgov.ui.server.servlets.DeploymentUploadServlet;
+import org.overlord.dtgov.ui.server.servlets.UiConfigurationServlet;
 import org.overlord.sramp.client.SrampAtomApiClient;
 import org.overlord.sramp.common.ArtifactType;
 import org.overlord.sramp.common.SrampModelUtils;
@@ -102,6 +105,20 @@ public class DTGovDevServer extends ErraiDevServer {
         // Configure the task client
         enableMockTaskClient();
 //        enableLiveTaskClient();
+
+        configureDeploymentsUI();
+    }
+
+    /**
+     * Adds the types and stages to the deployments UI.
+     */
+    private void configureDeploymentsUI() {
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".switchyard", "SwitchYard Application:ext/SwitchYardApplication");
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".war", "Web Application:ext/JavaWebApplication");
+
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".dev", "Development:http://www.jboss.org/overlord/deployment-status.owl#Dev");
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".qa", "QA:http://www.jboss.org/overlord/deployment-status.owl#Qa");
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".prod", "Production:http://www.jboss.org/overlord/deployment-status.owl#Prod");
     }
 
     /**
@@ -181,6 +198,9 @@ public class DTGovDevServer extends ErraiDevServer {
         ServletHolder headerDataServlet = new ServletHolder(OverlordHeaderDataJS.class);
         headerDataServlet.setInitParameter("app-id", "dtgov");
         dtgovUI.addServlet(headerDataServlet, "/js/overlord-header-data.js");
+        dtgovUI.addServlet(new ServletHolder(DeploymentDownloadServlet.class), "/app/services/deploymentDownload");
+        dtgovUI.addServlet(new ServletHolder(DeploymentUploadServlet.class), "/app/services/deploymentUpload");
+        dtgovUI.addServlet(new ServletHolder(UiConfigurationServlet.class), "/js/dtgovui-configuration.js");
         // File resources
         ServletHolder resources = new ServletHolder(new MultiDefaultServlet());
         resources.setInitParameter("resourceBase", "/");
@@ -228,7 +248,15 @@ public class DTGovDevServer extends ErraiDevServer {
     private void seedTaskForm(SrampAtomApiClient client) throws Exception {
         InputStream is = null;
 
-        // Ontology #1
+        // Ontology
+        try {
+            is = DTGovDevServer.class.getResourceAsStream("deployment-status.owl");
+            client.uploadOntology(is);
+            System.out.println("Deployment status ontology uploaded.");
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
         try {
             is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html");
             BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("OverlordTaskForm"), is, "mock-task.form.html");
@@ -240,6 +268,46 @@ public class DTGovDevServer extends ErraiDevServer {
         } finally {
             IOUtils.closeQuietly(is);
         }
+
+        // Add switchyard app #1
+        try {
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar");
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-1.jar");
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
+            artifact.setVersion("1.0");
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevTest");
+            client.updateArtifactMetaData(artifact);
+            System.out.println("SwitchYard Application #1 added");
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        // Add switchyard app #2
+        try {
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-2.jar");
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-2.jar");
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
+            artifact.setVersion("2.0");
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevPass");
+            client.updateArtifactMetaData(artifact);
+            System.out.println("SwitchYard Application #2 added");
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        // Add switchyard app #3
+        try {
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-3.jar");
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-3.jar");
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
+            artifact.setVersion("3.0");
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#ProdTest");
+            client.updateArtifactMetaData(artifact);
+            System.out.println("SwitchYard Application #3 added");
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
     }
 
 }
