@@ -8,7 +8,7 @@
 
   <properties>
     <dtgov.version>0.1.0-SNAPSHOT</dtgov.version>
-    <s-ramp.version>0.1.2-SNAPSHOT</s-ramp.version>
+    <s-ramp.version>0.2.1-SNAPSHOT</s-ramp.version>
     <overlord-commons.version>1.0.7</overlord-commons.version>
     
     <org.jboss.resteasy.version>2.3.5.Final</org.jboss.resteasy.version>

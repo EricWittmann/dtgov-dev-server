@@ -179,7 +179,7 @@ public class DTGovDevServer extends ErraiDevServer {
          * DTGov UI
          * ********* */
         ServletContextHandler dtgovUI = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        dtgovUI.setContextPath("/dtgov");
+        dtgovUI.setContextPath("/dtgov-ui");
         dtgovUI.setWelcomeFiles(new String[] { "index.html" });
         dtgovUI.setResourceBase(environment.getModuleDir("dtgov-ui").getCanonicalPath());
         dtgovUI.setInitParameter("errai.properties", "/WEB-INF/errai.properties");
