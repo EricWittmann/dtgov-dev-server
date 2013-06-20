@@ -48,6 +48,10 @@ import org.overlord.dtgov.ui.server.services.tasks.DtGovTaskApiClient;
 import org.overlord.dtgov.ui.server.servlets.DeploymentDownloadServlet;
 import org.overlord.dtgov.ui.server.servlets.DeploymentUploadServlet;
 import org.overlord.dtgov.ui.server.servlets.UiConfigurationServlet;
+import org.overlord.sramp.atom.archive.SrampArchive;
+import org.overlord.sramp.atom.archive.expand.DefaultMetaDataFactory;
+import org.overlord.sramp.atom.archive.expand.ZipToSrampArchive;
+import org.overlord.sramp.atom.archive.expand.registry.ZipToSrampArchiveRegistry;
 import org.overlord.sramp.client.SrampAtomApiClient;
 import org.overlord.sramp.common.ArtifactType;
 import org.overlord.sramp.common.SrampModelUtils;
@@ -101,6 +105,9 @@ public class DTGovDevServer extends ErraiDevServer {
         System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_ENDPOINT, "http://localhost:" + serverPort() + "/s-ramp-server");
         System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_VALIDATING, "true");
         System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_AUTH_PROVIDER, NoAuthenticationProvider.class.getName());
+
+        // Integrate with the s-ramp browser (not actually running - so this won't really work)
+        System.setProperty(DtgovUIConfig.SRAMP_UI_URL_BASE, "http://google.com/s-ramp-ui");
 
         // Configure the task client
         enableMockTaskClient();
@@ -235,17 +242,19 @@ public class DTGovDevServer extends ErraiDevServer {
         System.out.println("----------  Seeding  ---------------");
 
         SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:"+serverPort()+"/s-ramp-server");
+        seedOntology(client);
         seedTaskForm(client);
+        seedDeployments(client);
 
         System.out.println("----------  DONE  ---------------");
-        System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov/index.html");
+        System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov-ui/index.html");
         System.out.println("---------------------------------");
     }
 
     /**
      * @param client
      */
-    private void seedTaskForm(SrampAtomApiClient client) throws Exception {
+    private void seedOntology(SrampAtomApiClient client) throws Exception {
         InputStream is = null;
 
         // Ontology
@@ -256,6 +265,13 @@ public class DTGovDevServer extends ErraiDevServer {
         } finally {
             IOUtils.closeQuietly(is);
         }
+    }
+
+    /**
+     * @param client
+     */
+    private void seedTaskForm(SrampAtomApiClient client) throws Exception {
+        InputStream is = null;
 
         try {
             is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html");
@@ -264,12 +280,21 @@ public class DTGovDevServer extends ErraiDevServer {
             artifact.setVersion("1.0");
             SrampModelUtils.setCustomProperty(artifact, "task-type", "mock-task");
             client.updateArtifactMetaData(artifact);
-            System.out.println("PDF added");
+            System.out.println("Task form added");
         } finally {
             IOUtils.closeQuietly(is);
         }
+    }
+
+    /**
+     * @param client
+     */
+    private void seedDeployments(SrampAtomApiClient client) throws Exception {
+        InputStream is = null;
 
         // Add switchyard app #1
+        ZipToSrampArchive expander = null;
+        SrampArchive archive = null;
         try {
             is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar");
             BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-1.jar");
@@ -277,9 +302,24 @@ public class DTGovDevServer extends ErraiDevServer {
             artifact.setVersion("1.0");
             artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevTest");
             client.updateArtifactMetaData(artifact);
+
+            SrampModelUtils.setCustomProperty(artifact, "my-property-1", "prop-val-1");
+            SrampModelUtils.setCustomProperty(artifact, "my-property-2", "prop-val-2");
+            client.updateArtifactMetaData(artifact);
+
+            // Now expand the deployment
+            ArtifactType type = ArtifactType.valueOf(artifact);
+            is.close();
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar");
+            expander = ZipToSrampArchiveRegistry.createExpander(type, is);
+            expander.setContextParam(DefaultMetaDataFactory.PARENT_UUID, artifact.getUuid());
+            archive = expander.createSrampArchive();
+            client.uploadBatch(archive);
+
             System.out.println("SwitchYard Application #1 added");
         } finally {
             IOUtils.closeQuietly(is);
+            ZipToSrampArchive.closeQuietly(expander);
         }
 
         // Add switchyard app #2
@@ -307,7 +347,6 @@ public class DTGovDevServer extends ErraiDevServer {
         } finally {
             IOUtils.closeQuietly(is);
         }
-
     }
 
 }
