@@ -83,7 +83,7 @@ public class MockTaskClient implements ITaskClient {
                 "    <label>Task Field 3</label>\r\n" +
                 "    <input name=\"task-field-3\" type=\"text\"></input>\r\n" +
                 "    <label>Task Field 4</label>\r\n" +
-                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-1\">Option 1</input>\r\n" +
+                "    <label class=\"radio\"><input type=\"radio\" name=\"task-field-4\" value=\"option-1\"></input></label>\r\n" +
                 "    <input type=\"radio\" name=\"task-field-4\" value=\"option-2\">Option 2</input>\r\n" +
                 "    <input type=\"radio\" name=\"task-field-4\" value=\"option-3\">Option 3</input>\r\n" +
                 "    <span class=\"help-block\">Enter a short description below:</span>\r\n" +
@@ -95,6 +95,19 @@ public class MockTaskClient implements ITaskClient {
                 "      <option value=\"option-3\">Option 3</option>\r\n" +
                 "      <option value=\"option-4\">Option 4</option>\r\n" +
                 "    </select>\r\n" +
+                "    <label>Read-Only</label>\r\n" +
+                "    <div>\r\n" +
+                "      We support:\r\n" +
+                "      <p>\r\n" +
+                "        spans: <span data-name=\"task-label-1\"></span>\r\n" +
+                "      </p>\r\n" +
+                "      <p>\r\n" +
+                "        divs: <div data-name=\"task-label-2\"></div>\r\n" +
+                "      </p>\r\n" +
+                "      <p>\r\n" +
+                "        labels: <label data-name=\"task-label-3\"></label>\r\n" +
+                "      </p>\r\n" +
+                "    </div>\r\n" +
                 "  </fieldset>\r\n" +
                 "</form>\r\n" +
                 "" +
@@ -107,12 +120,16 @@ public class MockTaskClient implements ITaskClient {
      */
     private static Map<String, String> createTaskData(int taskId) {
         Map<String, String> data = new HashMap<String, String>();
+        data.put("TaskName", "sample-task");
         data.put("task-field-1", "Hello World");
         data.put("task-field-2", "true");
         data.put("task-field-3", "Foo Bar");
         data.put("task-field-4", "option-2");
         data.put("task-field-5", "Creates a mock task form.");
         data.put("task-field-6", "option-3");
+        data.put("task-label-1", "Span Label");
+        data.put("task-label-2", "Div Label");
+        data.put("task-label-3", "Label Label");
         return data;
     }
 

@@ -275,7 +275,7 @@ public class DTGovDevServer extends ErraiDevServer {
 
         try {
             is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html");
-            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("OverlordTaskForm"), is, "mock-task.form.html");
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.XmlDocument(), is, "sample-task-taskform.xml");
             artifact.setDescription("The starter task form that goes with the mock task client.  It maps to a task type of 'task-type-1'.");
             artifact.setVersion("1.0");
             SrampModelUtils.setCustomProperty(artifact, "task-type", "mock-task");

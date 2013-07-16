@@ -8,9 +8,18 @@
     <label>Task Field 3</label>
     <input name="task-field-3" type="text"></input>
     <label>Task Field 4</label>
-    <input type="radio" name="task-field-4" value="option-1">Option 1</input>
-    <input type="radio" name="task-field-4" value="option-2">Option 2</input>
-    <input type="radio" name="task-field-4" value="option-3">Option 3</input>
+    <label class="radio">
+      <input type="radio" name="task-field-4" value="option-1"></input>
+      Option 1
+    </label>
+    <label class="radio">
+      <input type="radio" name="task-field-4" value="option-2"></input>
+      Option 2
+    </label>
+    <label class="radio">
+      <input type="radio" name="task-field-4" value="option-3"></input>
+      Option 3
+    </label>
     <span class="help-block">Enter a short description below:</span>
     <textarea name="task-field-5" rows="3" cols="40"></textarea>
     <label>Task Field 6</label>
@@ -20,5 +29,18 @@
       <option value="option-3">Option 3</option>
       <option value="option-4">Option 4</option>
     </select>
+    <label>Read-Only</label>
+    <div>
+      We support:
+      <p>
+        spans: <span data-name="task-label-1"></span>
+      </p>
+      <p>
+        divs: <div data-name="task-label-2"></div>
+      </p>
+      <p>
+        labels: <label data-name="task-label-3"></label>
+      </p>
+    </div>
   </fieldset>
 </form>
