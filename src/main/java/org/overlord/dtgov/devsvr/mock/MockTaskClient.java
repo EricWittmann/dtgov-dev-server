@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.overlord.dtgov.ui.client.shared.beans.TaskActionEnum;
@@ -248,6 +249,14 @@ public class MockTaskClient implements ITaskClient {
         for (TaskActionEnum action : actions) {
             task.addAllowedAction(action);
         }
+    }
+
+    /**
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#setLocale(java.util.Locale)
+     */
+    @Override
+    public void setLocale(Locale locale) {
+        // No locale support in the mock task client. :)
     }
 
 }

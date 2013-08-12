@@ -57,6 +57,7 @@ import org.overlord.sramp.common.ArtifactType;
 import org.overlord.sramp.common.SrampModelUtils;
 import org.overlord.sramp.repository.jcr.JCRRepository;
 import org.overlord.sramp.server.atom.services.SRAMPApplication;
+import org.overlord.sramp.server.filters.LocaleFilter;
 
 /**
  * A dev server for DTGov.
@@ -198,6 +199,7 @@ public class DTGovDevServer extends ErraiDevServer {
         dtgovUI.addFilter(ResourceCacheControlFilter.class, "/css/*", EnumSet.of(DispatcherType.REQUEST));
         dtgovUI.addFilter(ResourceCacheControlFilter.class, "/images/*", EnumSet.of(DispatcherType.REQUEST));
         dtgovUI.addFilter(ResourceCacheControlFilter.class, "/js/*", EnumSet.of(DispatcherType.REQUEST));
+        dtgovUI.addFilter(org.overlord.dtgov.ui.server.filters.LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
         // Servlets
         ServletHolder erraiServlet = new ServletHolder(DefaultBlockingServlet.class);
         erraiServlet.setInitOrder(1);
@@ -228,6 +230,7 @@ public class DTGovDevServer extends ErraiDevServer {
         ServletHolder resteasyServlet = new ServletHolder(new HttpServletDispatcher());
         resteasyServlet.setInitParameter("javax.ws.rs.Application", SRAMPApplication.class.getName());
         srampServer.addServlet(resteasyServlet, "/*");
+        srampServer.addFilter(LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
 
         handlers.addHandler(dtgovUI);
