@@ -19,11 +19,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
 
+import org.overlord.dtgov.ui.client.shared.beans.Constants;
 import org.overlord.dtgov.ui.client.shared.beans.TaskActionEnum;
 import org.overlord.dtgov.ui.client.shared.beans.TaskBean;
 import org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean;
@@ -141,21 +144,60 @@ public class MockTaskClient implements ITaskClient {
     }
 
     /**
-     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#getTasks(org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean, int, int)
+     * @see org.overlord.dtgov.ui.server.services.tasks.ITaskClient#getTasks(org.overlord.dtgov.ui.client.shared.beans.TaskInboxFilterBean, int, int, java.lang.String, boolean)
      */
     @Override
-    public TaskInboxResultSetBean getTasks(TaskInboxFilterBean filters, int startIndex, int endIndex) {
-        List<TaskSummaryBean> filteredTasks = new ArrayList<TaskSummaryBean>();
+    public TaskInboxResultSetBean getTasks(TaskInboxFilterBean filters, int startIndex, int endIndex,
+            final String sortColumnId, final boolean sortAscending) throws Exception {
+        TreeSet<TaskSummaryBean> filteredTasks = new TreeSet<TaskSummaryBean>(new Comparator<TaskSummaryBean>() {
+            @Override
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            public int compare(TaskSummaryBean task1, TaskSummaryBean task2) {
+                Comparable sortValue1 = null;
+                Comparable sortValue2 = null;
+                if (sortColumnId.equals(Constants.SORT_COLID_NAME)) {
+                    sortValue1 = task1.getName();
+                    sortValue2 = task2.getName();
+                } else if (sortColumnId.equals(Constants.SORT_COLID_PRIORITY)) {
+                    sortValue1 = task1.getPriority();
+                    sortValue2 = task2.getPriority();
+                } else if (sortColumnId.equals(Constants.SORT_COLID_OWNER)) {
+                    sortValue1 = task1.getOwner();
+                    if (sortValue1 == null)
+                        sortValue1 = "";
+                    sortValue2 = task2.getOwner();
+                    if (sortValue2 == null)
+                        sortValue2 = "";
+                } else if (sortColumnId.equals(Constants.SORT_COLID_STATUS)) {
+                    sortValue1 = task1.getStatus();
+                    sortValue2 = task2.getStatus();
+                } else if (sortColumnId.equals(Constants.SORT_COLID_DUE_ON)) {
+                    sortValue1 = task1.getDueDate();
+                    sortValue2 = task2.getDueDate();
+                }
+                
+                int rval = sortValue1.compareTo(sortValue2);
+                if (!sortAscending) {
+                    rval = rval * -1;
+                }
+                if (rval == 0) {
+                    rval = task1.getId().compareTo(task2.getId());
+                }
+                return rval;
+            }
+        });
         for (TaskSummaryBean task : tasks) {
             if (matchesFilter(filters, task)) {
                 filteredTasks.add(task);
             }
         }
+        
+        List<TaskSummaryBean> list = new ArrayList<TaskSummaryBean>(filteredTasks);
 
         TaskInboxResultSetBean result = new TaskInboxResultSetBean();
         result.setItemsPerPage((endIndex-startIndex)+1);
         result.setStartIndex(startIndex);
-        result.setTasks(new ArrayList<TaskSummaryBean>(filteredTasks.subList(startIndex, Math.min(endIndex+1, filteredTasks.size()))));
+        result.setTasks(new ArrayList<TaskSummaryBean>(list.subList(startIndex, Math.min(endIndex+1, filteredTasks.size()))));
         result.setTotalResults(filteredTasks.size());
         return result;
     }
