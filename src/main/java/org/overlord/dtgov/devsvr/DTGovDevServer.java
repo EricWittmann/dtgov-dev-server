@@ -70,6 +70,7 @@ public class DTGovDevServer extends ErraiDevServer {
      * @param args
      */
     public static void main(String [] args) throws Exception {
+        Class.forName("org.slf4j.LoggerFactory");
         DTGovDevServer devServer = new DTGovDevServer(args);
         devServer.go();
     }

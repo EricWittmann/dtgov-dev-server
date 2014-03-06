@@ -10,10 +10,10 @@
     <dtgov.version>2.0.0-SNAPSHOT</dtgov.version>
     <s-ramp.version>0.4.0-SNAPSHOT</s-ramp.version>
     <overlord-commons.version>2.0.0-SNAPSHOT</overlord-commons.version>
-    
+
     <org.jboss.resteasy.version>2.3.5.Final</org.jboss.resteasy.version>
     <org.modeshape.version>3.2.0.Final</org.modeshape.version>
-    
+
     <slf4j.log4j.version>1.5.11</slf4j.log4j.version>
     <log4j.version>1.2.17</log4j.version>
     <servlet-api.version>2.5</servlet-api.version>
@@ -61,7 +61,7 @@
       <artifactId>overlord-commons-uiheader</artifactId>
       <version>${overlord-commons.version}</version>
     </dependency>
-    
+
     <!-- S-RAMP Server -->
     <dependency>
       <groupId>org.overlord.sramp</groupId>
@@ -137,7 +137,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <!-- DTGov -->
     <dependency>
       <groupId>org.overlord.dtgov</groupId>
@@ -160,6 +160,13 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <!-- Third Party Dependencies -->
+    <dependency>
+      <artifactId>slf4j-api</artifactId>
+      <groupId>org.slf4j</groupId>
+      <version>1.7.2</version>
     </dependency>
   </dependencies>
 
