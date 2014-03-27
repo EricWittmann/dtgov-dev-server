@@ -16,9 +16,16 @@
 package org.overlord.dtgov.devsvr;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import javax.servlet.DispatcherType;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -28,7 +35,9 @@ import org.jboss.errai.bus.server.servlet.DefaultBlockingServlet;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener;
 import org.jboss.weld.environment.servlet.Listener;
+import org.oasis_open.docs.s_ramp.ns.s_ramp_v1.BaseArtifactEnum;
 import org.oasis_open.docs.s_ramp.ns.s_ramp_v1.BaseArtifactType;
+import org.oasis_open.docs.s_ramp.ns.s_ramp_v1.ExtendedArtifactType;
 import org.overlord.commons.dev.server.DevServerEnvironment;
 import org.overlord.commons.dev.server.ErraiDevServer;
 import org.overlord.commons.dev.server.MultiDefaultServlet;
@@ -40,6 +49,7 @@ import org.overlord.commons.gwt.server.filters.GWTCacheControlFilter;
 import org.overlord.commons.gwt.server.filters.ResourceCacheControlFilter;
 import org.overlord.commons.ui.header.OverlordHeaderDataJS;
 import org.overlord.dtgov.devsvr.mock.MockTaskClient;
+import org.overlord.dtgov.ui.client.shared.beans.WorkflowQueryProperty;
 import org.overlord.dtgov.ui.server.DtgovUI;
 import org.overlord.dtgov.ui.server.DtgovUIConfig;
 import org.overlord.dtgov.ui.server.services.sramp.NoAuthenticationProvider;
@@ -89,7 +99,7 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     @Override
     protected int serverPort() {
-        return 8088;
+        return 8080;
     }
 
     /**
@@ -250,7 +260,7 @@ public class DTGovDevServer extends ErraiDevServer {
         seedOntology(client);
         seedTaskForm(client);
         seedDeployments(client);
-
+        seedWorkflowQueries(client);
         System.out.println("----------  DONE  ---------------");
         System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov-ui/index.html");
         System.out.println("---------------------------------");
@@ -291,6 +301,47 @@ public class DTGovDevServer extends ErraiDevServer {
         }
     }
 
+    
+    /**
+     * @param client
+     */
+    private void seedWorkflowQueries(SrampAtomApiClient client) throws Exception {
+        List<String> workflows=new ArrayList<String>();
+        workflows.add("overlord.demo.SimpleReleaseProcess");
+        workflows.add("overlord.demo.SimplifiedProjectLifeCycle");
+    	for(int i=0;i<15;i++){
+    		ExtendedArtifactType toSave=new ExtendedArtifactType();
+    		toSave.setArtifactType(BaseArtifactEnum.EXTENDED_ARTIFACT_TYPE);
+    		toSave.setExtendedType("DtgovWorkflowQuery");
+    		toSave.setName("Name"+i);
+    		toSave.setDescription("Description"+i);
+    		
+    		
+    		SrampModelUtils.setCustomProperty(toSave,"query","s-ramp query "+i);
+    		
+    		Double random=(Math.random()*workflows.size());
+    		SrampModelUtils.setCustomProperty(toSave,"workflow",workflows.get(random.intValue()));
+
+    		
+    		GregorianCalendar gcal = new GregorianCalendar();
+    		gcal.setTime(new Date());
+    		try{
+    			XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
+    			toSave.setCreatedTimestamp(xmlCal);
+    		}
+    		catch(DatatypeConfigurationException ee){
+    			
+    		}
+    		
+    		for(int j=0;j<5;j++){
+    			SrampModelUtils.setCustomProperty(toSave,"prop.propertyName"+j,"propertyValue"+j);
+    		}
+    		client.createArtifact(toSave);
+    	}
+
+    }
+    
+    
     /**
      * @param client
      */
