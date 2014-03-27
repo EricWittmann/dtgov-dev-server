@@ -49,7 +49,6 @@ import org.overlord.commons.gwt.server.filters.GWTCacheControlFilter;
 import org.overlord.commons.gwt.server.filters.ResourceCacheControlFilter;
 import org.overlord.commons.ui.header.OverlordHeaderDataJS;
 import org.overlord.dtgov.devsvr.mock.MockTaskClient;
-import org.overlord.dtgov.ui.client.shared.beans.WorkflowQueryProperty;
 import org.overlord.dtgov.ui.server.DtgovUI;
 import org.overlord.dtgov.ui.server.DtgovUIConfig;
 import org.overlord.dtgov.ui.server.services.sramp.NoAuthenticationProvider;
@@ -301,43 +300,39 @@ public class DTGovDevServer extends ErraiDevServer {
         }
     }
 
-    
     /**
      * @param client
      */
     private void seedWorkflowQueries(SrampAtomApiClient client) throws Exception {
-        List<String> workflows=new ArrayList<String>();
+        List<String> workflows = new ArrayList<String>();
         workflows.add("overlord.demo.SimpleReleaseProcess");
         workflows.add("overlord.demo.SimplifiedProjectLifeCycle");
-    	for(int i=0;i<15;i++){
-    		ExtendedArtifactType toSave=new ExtendedArtifactType();
-    		toSave.setArtifactType(BaseArtifactEnum.EXTENDED_ARTIFACT_TYPE);
-    		toSave.setExtendedType("DtgovWorkflowQuery");
-    		toSave.setName("Name"+i);
-    		toSave.setDescription("Description"+i);
-    		
-    		
-    		SrampModelUtils.setCustomProperty(toSave,"query","s-ramp query "+i);
-    		
-    		Double random=(Math.random()*workflows.size());
-    		SrampModelUtils.setCustomProperty(toSave,"workflow",workflows.get(random.intValue()));
+        for (int i = 0; i < 15; i++) {
+            ExtendedArtifactType toSave = new ExtendedArtifactType();
+            toSave.setArtifactType(BaseArtifactEnum.EXTENDED_ARTIFACT_TYPE);
+            toSave.setExtendedType("DtgovWorkflowQuery");
+            toSave.setName("Name" + i);
+            toSave.setDescription("Description" + i);
 
-    		
-    		GregorianCalendar gcal = new GregorianCalendar();
-    		gcal.setTime(new Date());
-    		try{
-    			XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
-    			toSave.setCreatedTimestamp(xmlCal);
-    		}
-    		catch(DatatypeConfigurationException ee){
-    			
-    		}
-    		
-    		for(int j=0;j<5;j++){
-    			SrampModelUtils.setCustomProperty(toSave,"prop.propertyName"+j,"propertyValue"+j);
-    		}
-    		client.createArtifact(toSave);
-    	}
+            SrampModelUtils.setCustomProperty(toSave, "query", "s-ramp query " + i);
+
+            Double random = (Math.random() * workflows.size());
+            SrampModelUtils.setCustomProperty(toSave, "workflow", workflows.get(random.intValue()));
+
+            GregorianCalendar gcal = new GregorianCalendar();
+            gcal.setTime(new Date());
+            try {
+                XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
+                toSave.setCreatedTimestamp(xmlCal);
+            } catch (DatatypeConfigurationException ee) {
+
+            }
+
+            for (int j = 0; j < 5; j++) {
+                SrampModelUtils.setCustomProperty(toSave, "prop.propertyName" + j, "propertyValue" + j);
+            }
+            client.createArtifact(toSave);
+        }
 
     }
     
