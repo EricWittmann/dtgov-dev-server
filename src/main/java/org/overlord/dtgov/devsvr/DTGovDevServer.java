@@ -79,7 +79,7 @@ public class DTGovDevServer extends ErraiDevServer {
      * @param args
      */
     public static void main(String [] args) throws Exception {
-        Class.forName("org.slf4j.LoggerFactory");
+        Class.forName("org.slf4j.LoggerFactory"); //$NON-NLS-1$
         DTGovDevServer devServer = new DTGovDevServer(args);
         devServer.enableDebug();
         devServer.go();
@@ -107,19 +107,19 @@ public class DTGovDevServer extends ErraiDevServer {
     @Override
     protected void preConfig() {
         // Use an in-memory config for s-ramp
-        System.setProperty("sramp.modeshape.config.url", "classpath://" + JCRRepository.class.getName()
-                + "/META-INF/modeshape-configs/inmemory-sramp-config.json");
+        System.setProperty("sramp.modeshape.config.url", "classpath://" + JCRRepository.class.getName() //$NON-NLS-1$ //$NON-NLS-2$
+                + "/META-INF/modeshape-configs/inmemory-sramp-config.json"); //$NON-NLS-1$
 
         // Don't do any resource caching!
-        System.setProperty("overlord.resource-caching.disabled", "true");
+        System.setProperty("overlord.resource-caching.disabled", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Configure the S-RAMP client
-        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_ENDPOINT, "http://localhost:" + serverPort() + "/s-ramp-server");
-        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_VALIDATING, "true");
+        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_ENDPOINT, "http://localhost:" + serverPort() + "/s-ramp-server"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_VALIDATING, "true"); //$NON-NLS-1$
         System.setProperty(DtgovUIConfig.SRAMP_ATOM_API_AUTH_PROVIDER, NoAuthenticationProvider.class.getName());
 
         // Integrate with the s-ramp browser (not actually running - so this won't really work)
-        System.setProperty(DtgovUIConfig.SRAMP_UI_URL_BASE, "http://google.com/s-ramp-ui");
+        System.setProperty(DtgovUIConfig.SRAMP_UI_URL_BASE, "http://google.com/s-ramp-ui"); //$NON-NLS-1$
 
         // Configure the task client
         enableMockTaskClient();
@@ -132,12 +132,12 @@ public class DTGovDevServer extends ErraiDevServer {
      * Adds the types and stages to the deployments UI.
      */
     private void configureDeploymentsUI() {
-        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".switchyard", "SwitchYard Application:ext/SwitchYardApplication");
-        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".war", "Web Application:ext/JavaWebApplication");
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".switchyard", "SwitchYard Application:ext/SwitchYardApplication"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_TYPE_PREFIX + ".war", "Web Application:ext/JavaWebApplication"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".dev", "Development:http://www.jboss.org/overlord/deployment-status.owl#Dev");
-        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".qa", "QA:http://www.jboss.org/overlord/deployment-status.owl#Qa");
-        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".prod", "Production:http://www.jboss.org/overlord/deployment-status.owl#Prod");
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".dev", "Development:http://www.jboss.org/overlord/deployment-status.owl#Dev"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".qa", "QA:http://www.jboss.org/overlord/deployment-status.owl#Qa"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty(DtgovUIConfig.DEPLOYMENT_CLASSIFIER_STAGE_PREFIX + ".prod", "Production:http://www.jboss.org/overlord/deployment-status.owl#Prod"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -153,10 +153,10 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     protected void enableLiveTaskClient() {
         System.setProperty(DtgovUIConfig.TASK_CLIENT_CLASS, DtGovTaskApiClient.class.getName());
-        System.setProperty(DtgovUIConfig.TASK_API_ENDPOINT, "http://localhost:8080/dtgov/rest/tasks");
+        System.setProperty(DtgovUIConfig.TASK_API_ENDPOINT, "http://localhost:8080/dtgov/rest/tasks"); //$NON-NLS-1$
         System.setProperty(DtgovUIConfig.TASK_API_AUTH_PROVIDER, BasicAuthenticationProvider.class.getName());
-        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_USER, "eric");
-        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_PASS, "eric");
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_USER, "eric"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_PASS, "eric"); //$NON-NLS-1$
     }
 
     /**
@@ -164,7 +164,7 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     @Override
     protected String getErraiModuleId() {
-        return "dtgov-ui";
+        return "dtgov-ui"; //$NON-NLS-1$
     }
 
     /**
@@ -180,12 +180,12 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     @Override
     protected void addModules(DevServerEnvironment environment) {
-        environment.addModule("dtgov-ui",
+        environment.addModule("dtgov-ui", //$NON-NLS-1$
                 new WebAppModuleFromIDEDiscoveryStrategy(DtgovUI.class),
                 new ErraiWebAppModuleFromMavenDiscoveryStrategy(DtgovUI.class));
-        environment.addModule("overlord-commons-uiheader",
-                new JarModuleFromIDEDiscoveryStrategy(OverlordHeaderDataJS.class, "src/main/resources/META-INF/resources"),
-                new JarModuleFromMavenDiscoveryStrategy(OverlordHeaderDataJS.class, "/META-INF/resources"));
+        environment.addModule("overlord-commons-uiheader", //$NON-NLS-1$
+                new JarModuleFromIDEDiscoveryStrategy(OverlordHeaderDataJS.class, "src/main/resources/META-INF/resources"), //$NON-NLS-1$
+                new JarModuleFromMavenDiscoveryStrategy(OverlordHeaderDataJS.class, "/META-INF/resources")); //$NON-NLS-1$
     }
 
     /**
@@ -198,50 +198,50 @@ public class DTGovDevServer extends ErraiDevServer {
          * DTGov UI
          * ********* */
         ServletContextHandler dtgovUI = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        dtgovUI.setContextPath("/dtgov-ui");
-        dtgovUI.setWelcomeFiles(new String[] { "index.html" });
-        dtgovUI.setResourceBase(environment.getModuleDir("dtgov-ui").getCanonicalPath());
-        dtgovUI.setInitParameter("errai.properties", "/WEB-INF/errai.properties");
-        dtgovUI.setInitParameter("login.config", "/WEB-INF/login.config");
-        dtgovUI.setInitParameter("users.properties", "/WEB-INF/users.properties");
+        dtgovUI.setContextPath("/dtgov-ui"); //$NON-NLS-1$
+        dtgovUI.setWelcomeFiles(new String[] { "index.html" }); //$NON-NLS-1$
+        dtgovUI.setResourceBase(environment.getModuleDir("dtgov-ui").getCanonicalPath()); //$NON-NLS-1$
+        dtgovUI.setInitParameter("errai.properties", "/WEB-INF/errai.properties"); //$NON-NLS-1$ //$NON-NLS-2$
+        dtgovUI.setInitParameter("login.config", "/WEB-INF/login.config"); //$NON-NLS-1$ //$NON-NLS-2$
+        dtgovUI.setInitParameter("users.properties", "/WEB-INF/users.properties"); //$NON-NLS-1$ //$NON-NLS-2$
         dtgovUI.addEventListener(new Listener());
         dtgovUI.addEventListener(new BeanManagerResourceBindingListener());
-        dtgovUI.addFilter(GWTCacheControlFilter.class, "/app/*", EnumSet.of(DispatcherType.REQUEST));
-        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/css/*", EnumSet.of(DispatcherType.REQUEST));
-        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/images/*", EnumSet.of(DispatcherType.REQUEST));
-        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/js/*", EnumSet.of(DispatcherType.REQUEST));
-        dtgovUI.addFilter(org.overlord.dtgov.ui.server.filters.LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        dtgovUI.addFilter(GWTCacheControlFilter.class, "/app/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
+        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/css/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
+        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/images/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
+        dtgovUI.addFilter(ResourceCacheControlFilter.class, "/js/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
+        dtgovUI.addFilter(org.overlord.dtgov.ui.server.filters.LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
         // Servlets
         ServletHolder erraiServlet = new ServletHolder(DefaultBlockingServlet.class);
         erraiServlet.setInitOrder(1);
-        dtgovUI.addServlet(erraiServlet, "*.erraiBus");
+        dtgovUI.addServlet(erraiServlet, "*.erraiBus"); //$NON-NLS-1$
         ServletHolder headerDataServlet = new ServletHolder(OverlordHeaderDataJS.class);
-        headerDataServlet.setInitParameter("app-id", "dtgov");
-        dtgovUI.addServlet(headerDataServlet, "/js/overlord-header-data.js");
-        dtgovUI.addServlet(new ServletHolder(DeploymentDownloadServlet.class), "/app/services/deploymentDownload");
-        dtgovUI.addServlet(new ServletHolder(DeploymentUploadServlet.class), "/app/services/deploymentUpload");
-        dtgovUI.addServlet(new ServletHolder(UiConfigurationServlet.class), "/js/dtgovui-configuration.js");
+        headerDataServlet.setInitParameter("app-id", "dtgov"); //$NON-NLS-1$ //$NON-NLS-2$
+        dtgovUI.addServlet(headerDataServlet, "/js/overlord-header-data.js"); //$NON-NLS-1$
+        dtgovUI.addServlet(new ServletHolder(DeploymentDownloadServlet.class), "/app/services/deploymentDownload"); //$NON-NLS-1$
+        dtgovUI.addServlet(new ServletHolder(DeploymentUploadServlet.class), "/app/services/deploymentUpload"); //$NON-NLS-1$
+        dtgovUI.addServlet(new ServletHolder(UiConfigurationServlet.class), "/js/dtgovui-configuration.js"); //$NON-NLS-1$
         // File resources
         ServletHolder resources = new ServletHolder(new MultiDefaultServlet());
-        resources.setInitParameter("resourceBase", "/");
-        resources.setInitParameter("resourceBases", environment.getModuleDir("dtgov-ui").getCanonicalPath()
-                + "|" + environment.getModuleDir("overlord-commons-uiheader").getCanonicalPath());
-        resources.setInitParameter("dirAllowed", "true");
-        resources.setInitParameter("pathInfoOnly", "false");
-        String[] fileTypes = new String[] { "html", "js", "css", "png", "gif" };
+        resources.setInitParameter("resourceBase", "/"); //$NON-NLS-1$ //$NON-NLS-2$
+        resources.setInitParameter("resourceBases", environment.getModuleDir("dtgov-ui").getCanonicalPath() //$NON-NLS-1$ //$NON-NLS-2$
+                + "|" + environment.getModuleDir("overlord-commons-uiheader").getCanonicalPath()); //$NON-NLS-1$ //$NON-NLS-2$
+        resources.setInitParameter("dirAllowed", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        resources.setInitParameter("pathInfoOnly", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+        String[] fileTypes = new String[] { "html", "js", "css", "png", "gif" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         for (String fileType : fileTypes) {
-            dtgovUI.addServlet(resources, "*." + fileType);
+            dtgovUI.addServlet(resources, "*." + fileType); //$NON-NLS-1$
         }
 
         /* *************
          * S-RAMP server
          * ************* */
         ServletContextHandler srampServer = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        srampServer.setContextPath("/s-ramp-server");
+        srampServer.setContextPath("/s-ramp-server"); //$NON-NLS-1$
         ServletHolder resteasyServlet = new ServletHolder(new HttpServletDispatcher());
-        resteasyServlet.setInitParameter("javax.ws.rs.Application", SRAMPApplication.class.getName());
-        srampServer.addServlet(resteasyServlet, "/*");
-        srampServer.addFilter(LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        resteasyServlet.setInitParameter("javax.ws.rs.Application", SRAMPApplication.class.getName()); //$NON-NLS-1$
+        srampServer.addServlet(resteasyServlet, "/*"); //$NON-NLS-1$
+        srampServer.addFilter(LocaleFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)); //$NON-NLS-1$
 
 
         handlers.addHandler(dtgovUI);
@@ -253,16 +253,16 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     @Override
     protected void postStart(DevServerEnvironment environment) throws Exception {
-        System.out.println("----------  Seeding  ---------------");
+        System.out.println("----------  Seeding  ---------------"); //$NON-NLS-1$
 
-        SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:"+serverPort()+"/s-ramp-server");
+        SrampAtomApiClient client = new SrampAtomApiClient("http://localhost:"+serverPort()+"/s-ramp-server"); //$NON-NLS-1$ //$NON-NLS-2$
         seedOntology(client);
         seedTaskForm(client);
         seedDeployments(client);
         seedWorkflowQueries(client);
-        System.out.println("----------  DONE  ---------------");
-        System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov-ui/index.html");
-        System.out.println("---------------------------------");
+        System.out.println("----------  DONE  ---------------"); //$NON-NLS-1$
+        System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov-ui/index.html"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.out.println("---------------------------------"); //$NON-NLS-1$
     }
 
     /**
@@ -273,9 +273,9 @@ public class DTGovDevServer extends ErraiDevServer {
 
         // Ontology
         try {
-            is = DTGovDevServer.class.getResourceAsStream("deployment-status.owl");
+            is = DTGovDevServer.class.getResourceAsStream("deployment-status.owl"); //$NON-NLS-1$
             client.uploadOntology(is);
-            System.out.println("Deployment status ontology uploaded.");
+            System.out.println("Deployment status ontology uploaded."); //$NON-NLS-1$
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -288,13 +288,13 @@ public class DTGovDevServer extends ErraiDevServer {
         InputStream is = null;
 
         try {
-            is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html");
-            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.XmlDocument(), is, "sample-task-taskform.xml");
-            artifact.setDescription("The starter task form that goes with the mock task client.  It maps to a task type of 'task-type-1'.");
-            artifact.setVersion("1.0");
-            SrampModelUtils.setCustomProperty(artifact, "task-type", "mock-task");
+            is = DTGovDevServer.class.getResourceAsStream("mock-task.form.html"); //$NON-NLS-1$
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.XmlDocument(), is, "sample-task-taskform.xml"); //$NON-NLS-1$
+            artifact.setDescription("The starter task form that goes with the mock task client.  It maps to a task type of 'task-type-1'."); //$NON-NLS-1$
+            artifact.setVersion("1.0"); //$NON-NLS-1$
+            SrampModelUtils.setCustomProperty(artifact, "task-type", "mock-task"); //$NON-NLS-1$ //$NON-NLS-2$
             client.updateArtifactMetaData(artifact);
-            System.out.println("Task form added");
+            System.out.println("Task form added"); //$NON-NLS-1$
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -305,19 +305,19 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     private void seedWorkflowQueries(SrampAtomApiClient client) throws Exception {
         List<String> workflows = new ArrayList<String>();
-        workflows.add("overlord.demo.SimpleReleaseProcess");
-        workflows.add("overlord.demo.SimplifiedProjectLifeCycle");
+        workflows.add("overlord.demo.SimpleReleaseProcess"); //$NON-NLS-1$
+        workflows.add("overlord.demo.SimplifiedProjectLifeCycle"); //$NON-NLS-1$
         for (int i = 0; i < 15; i++) {
             ExtendedArtifactType toSave = new ExtendedArtifactType();
             toSave.setArtifactType(BaseArtifactEnum.EXTENDED_ARTIFACT_TYPE);
-            toSave.setExtendedType("DtgovWorkflowQuery");
-            toSave.setName("Name" + i);
-            toSave.setDescription("Description" + i);
+            toSave.setExtendedType("DtgovWorkflowQuery"); //$NON-NLS-1$
+            toSave.setName("Name" + i); //$NON-NLS-1$
+            toSave.setDescription("Description" + i); //$NON-NLS-1$
 
-            SrampModelUtils.setCustomProperty(toSave, "query", "s-ramp query " + i);
+            SrampModelUtils.setCustomProperty(toSave, "query", "s-ramp query " + i); //$NON-NLS-1$ //$NON-NLS-2$
 
             Double random = (Math.random() * workflows.size());
-            SrampModelUtils.setCustomProperty(toSave, "workflow", workflows.get(random.intValue()));
+            SrampModelUtils.setCustomProperty(toSave, "workflow", workflows.get(random.intValue())); //$NON-NLS-1$
 
             GregorianCalendar gcal = new GregorianCalendar();
             gcal.setTime(new Date());
@@ -329,7 +329,7 @@ public class DTGovDevServer extends ErraiDevServer {
             }
 
             for (int j = 0; j < 5; j++) {
-                SrampModelUtils.setCustomProperty(toSave, "prop.propertyName" + j, "propertyValue" + j);
+                SrampModelUtils.setCustomProperty(toSave, "prop.propertyName" + j, "propertyValue" + j); //$NON-NLS-1$ //$NON-NLS-2$
             }
             client.createArtifact(toSave);
         }
@@ -347,27 +347,27 @@ public class DTGovDevServer extends ErraiDevServer {
         ZipToSrampArchive expander = null;
         SrampArchive archive = null;
         try {
-            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar");
-            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-1.jar");
-            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
-            artifact.setVersion("1.0");
-            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevTest");
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar"); //$NON-NLS-1$
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-1.jar"); //$NON-NLS-1$ //$NON-NLS-2$
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc."); //$NON-NLS-1$
+            artifact.setVersion("1.0"); //$NON-NLS-1$
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevTest"); //$NON-NLS-1$
             client.updateArtifactMetaData(artifact);
 
-            SrampModelUtils.setCustomProperty(artifact, "my-property-1", "prop-val-1");
-            SrampModelUtils.setCustomProperty(artifact, "my-property-2", "prop-val-2");
+            SrampModelUtils.setCustomProperty(artifact, "my-property-1", "prop-val-1"); //$NON-NLS-1$ //$NON-NLS-2$
+            SrampModelUtils.setCustomProperty(artifact, "my-property-2", "prop-val-2"); //$NON-NLS-1$ //$NON-NLS-2$
             client.updateArtifactMetaData(artifact);
 
             // Now expand the deployment
             ArtifactType type = ArtifactType.valueOf(artifact);
             is.close();
-            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar");
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-1.jar"); //$NON-NLS-1$
             expander = ZipToSrampArchiveRegistry.createExpander(type, is);
             expander.setContextParam(DefaultMetaDataFactory.PARENT_UUID, artifact.getUuid());
             archive = expander.createSrampArchive();
             client.uploadBatch(archive);
 
-            System.out.println("SwitchYard Application #1 added");
+            System.out.println("SwitchYard Application #1 added"); //$NON-NLS-1$
         } finally {
             IOUtils.closeQuietly(is);
             ZipToSrampArchive.closeQuietly(expander);
@@ -375,26 +375,26 @@ public class DTGovDevServer extends ErraiDevServer {
 
         // Add switchyard app #2
         try {
-            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-2.jar");
-            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-2.jar");
-            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
-            artifact.setVersion("2.0");
-            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevPass");
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-2.jar"); //$NON-NLS-1$
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-2.jar"); //$NON-NLS-1$ //$NON-NLS-2$
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc."); //$NON-NLS-1$
+            artifact.setVersion("2.0"); //$NON-NLS-1$
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#DevPass"); //$NON-NLS-1$
             client.updateArtifactMetaData(artifact);
-            System.out.println("SwitchYard Application #2 added");
+            System.out.println("SwitchYard Application #2 added"); //$NON-NLS-1$
         } finally {
             IOUtils.closeQuietly(is);
         }
 
         // Add switchyard app #3
         try {
-            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-3.jar");
-            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-3.jar");
-            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.");
-            artifact.setVersion("3.0");
-            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#ProdTest");
+            is = DTGovDevServer.class.getResourceAsStream("switchyard-app-3.jar"); //$NON-NLS-1$
+            BaseArtifactType artifact = client.uploadArtifact(ArtifactType.ExtendedDocument("SwitchYardApplication"), is, "switchyard-app-3.jar"); //$NON-NLS-1$ //$NON-NLS-2$
+            artifact.setDescription("Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc."); //$NON-NLS-1$
+            artifact.setVersion("3.0"); //$NON-NLS-1$
+            artifact.getClassifiedBy().add("http://www.jboss.org/overlord/deployment-status.owl#ProdTest"); //$NON-NLS-1$
             client.updateArtifactMetaData(artifact);
-            System.out.println("SwitchYard Application #3 added");
+            System.out.println("SwitchYard Application #3 added"); //$NON-NLS-1$
         } finally {
             IOUtils.closeQuietly(is);
         }

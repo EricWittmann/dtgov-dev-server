@@ -40,7 +40,7 @@ import org.overlord.dtgov.ui.server.services.tasks.ITaskClient;
  */
 public class MockTaskClient implements ITaskClient {
 
-    private final static String secureRandomAlgorithm = "SHA1PRNG";
+    private final static String secureRandomAlgorithm = "SHA1PRNG"; //$NON-NLS-1$
     private final static SecureRandom random;
 
     private static List<TaskBean> tasks = new ArrayList<TaskBean>();
@@ -48,18 +48,18 @@ public class MockTaskClient implements ITaskClient {
         try {
             random = SecureRandom.getInstance(secureRandomAlgorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("runtime does not support secure random algorithm: " + secureRandomAlgorithm);
+            throw new RuntimeException("runtime does not support secure random algorithm: " + secureRandomAlgorithm); //$NON-NLS-1$
         }
         for (int i=0; i < 42; i++) {
             TaskBean bean = new TaskBean();
             bean.setId(String.valueOf(i));
-            bean.setName("Task " + i);
-            bean.setOwner((random.nextInt(111) % 4) == 0 ? "ewittman" : null);
+            bean.setName("Task " + i); //$NON-NLS-1$
+            bean.setOwner((random.nextInt(111) % 4) == 0 ? "ewittman" : null); //$NON-NLS-1$
             bean.setPriority(random.nextInt(3));
             bean.setStatus(MockTaskStatus.Ready.toString());
-            bean.setType("mock-task");
+            bean.setType("mock-task"); //$NON-NLS-1$
             if (random.nextInt() % 2 > 0) {
-                bean.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta.");
+                bean.setDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta."); //$NON-NLS-1$
             }
             bean.addAllowedAction(TaskActionEnum.claim);
             Calendar cal = Calendar.getInstance();
@@ -76,46 +76,46 @@ public class MockTaskClient implements ITaskClient {
      * @param taskId
      */
     private static String createTaskForm(int taskId) {
-        return  "<div>" +
-                "<form>\r\n" +
-                "  <fieldset>\r\n" +
-                "    <label>Task Field 1</label>\r\n" +
-                "    <input name=\"task-field-1\" type=\"text\" placeholder=\"Type something...\"></input>\r\n" +
-                "    <label class=\"checkbox\">\r\n" +
-                "      <input name=\"task-field-2\" type=\"checkbox\"> Task Field 2</input>\r\n" +
-                "    </label>\r\n" +
-                "    <label>Task Field 3</label>\r\n" +
-                "    <input name=\"task-field-3\" type=\"text\"></input>\r\n" +
-                "    <label>Task Field 4</label>\r\n" +
-                "    <label class=\"radio\"><input type=\"radio\" name=\"task-field-4\" value=\"option-1\"></input></label>\r\n" +
-                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-2\">Option 2</input>\r\n" +
-                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-3\">Option 3</input>\r\n" +
-                "    <span class=\"help-block\">Enter a short description below:</span>\r\n" +
-                "    <textarea name=\"task-field-5\" rows=\"3\" cols=\"40\"></textarea>\r\n" +
-                "    <label>Task Field 6</label>\r\n" +
-                "    <select name=\"task-field-6\">\r\n" +
-                "      <option value=\"option-1\">Option 1</option>\r\n" +
-                "      <option value=\"option-2\">Option 2</option>\r\n" +
-                "      <option value=\"option-3\">Option 3</option>\r\n" +
-                "      <option value=\"option-4\">Option 4</option>\r\n" +
-                "    </select>\r\n" +
-                "    <label>Read-Only</label>\r\n" +
-                "    <div>\r\n" +
-                "      We support:\r\n" +
-                "      <p>\r\n" +
-                "        spans: <span data-name=\"task-label-1\"></span>\r\n" +
-                "      </p>\r\n" +
-                "      <p>\r\n" +
-                "        divs: <div data-name=\"task-label-2\"></div>\r\n" +
-                "      </p>\r\n" +
-                "      <p>\r\n" +
-                "        labels: <label data-name=\"task-label-3\"></label>\r\n" +
-                "      </p>\r\n" +
-                "    </div>\r\n" +
-                "  </fieldset>\r\n" +
-                "</form>\r\n" +
-                "" +
-                "</div>";
+        return  "<div>" + //$NON-NLS-1$
+                "<form>\r\n" + //$NON-NLS-1$
+                "  <fieldset>\r\n" + //$NON-NLS-1$
+                "    <label>Task Field 1</label>\r\n" + //$NON-NLS-1$
+                "    <input name=\"task-field-1\" type=\"text\" placeholder=\"Type something...\"></input>\r\n" + //$NON-NLS-1$
+                "    <label class=\"checkbox\">\r\n" + //$NON-NLS-1$
+                "      <input name=\"task-field-2\" type=\"checkbox\"> Task Field 2</input>\r\n" + //$NON-NLS-1$
+                "    </label>\r\n" + //$NON-NLS-1$
+                "    <label>Task Field 3</label>\r\n" + //$NON-NLS-1$
+                "    <input name=\"task-field-3\" type=\"text\"></input>\r\n" + //$NON-NLS-1$
+                "    <label>Task Field 4</label>\r\n" + //$NON-NLS-1$
+                "    <label class=\"radio\"><input type=\"radio\" name=\"task-field-4\" value=\"option-1\"></input></label>\r\n" + //$NON-NLS-1$
+                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-2\">Option 2</input>\r\n" + //$NON-NLS-1$
+                "    <input type=\"radio\" name=\"task-field-4\" value=\"option-3\">Option 3</input>\r\n" + //$NON-NLS-1$
+                "    <span class=\"help-block\">Enter a short description below:</span>\r\n" + //$NON-NLS-1$
+                "    <textarea name=\"task-field-5\" rows=\"3\" cols=\"40\"></textarea>\r\n" + //$NON-NLS-1$
+                "    <label>Task Field 6</label>\r\n" + //$NON-NLS-1$
+                "    <select name=\"task-field-6\">\r\n" + //$NON-NLS-1$
+                "      <option value=\"option-1\">Option 1</option>\r\n" + //$NON-NLS-1$
+                "      <option value=\"option-2\">Option 2</option>\r\n" + //$NON-NLS-1$
+                "      <option value=\"option-3\">Option 3</option>\r\n" + //$NON-NLS-1$
+                "      <option value=\"option-4\">Option 4</option>\r\n" + //$NON-NLS-1$
+                "    </select>\r\n" + //$NON-NLS-1$
+                "    <label>Read-Only</label>\r\n" + //$NON-NLS-1$
+                "    <div>\r\n" + //$NON-NLS-1$
+                "      We support:\r\n" + //$NON-NLS-1$
+                "      <p>\r\n" + //$NON-NLS-1$
+                "        spans: <span data-name=\"task-label-1\"></span>\r\n" + //$NON-NLS-1$
+                "      </p>\r\n" + //$NON-NLS-1$
+                "      <p>\r\n" + //$NON-NLS-1$
+                "        divs: <div data-name=\"task-label-2\"></div>\r\n" + //$NON-NLS-1$
+                "      </p>\r\n" + //$NON-NLS-1$
+                "      <p>\r\n" + //$NON-NLS-1$
+                "        labels: <label data-name=\"task-label-3\"></label>\r\n" + //$NON-NLS-1$
+                "      </p>\r\n" + //$NON-NLS-1$
+                "    </div>\r\n" + //$NON-NLS-1$
+                "  </fieldset>\r\n" + //$NON-NLS-1$
+                "</form>\r\n" + //$NON-NLS-1$
+                "" + //$NON-NLS-1$
+                "</div>"; //$NON-NLS-1$
     }
 
     /**
@@ -124,16 +124,16 @@ public class MockTaskClient implements ITaskClient {
      */
     private static Map<String, String> createTaskData(int taskId) {
         Map<String, String> data = new HashMap<String, String>();
-        data.put("TaskName", "sample-task");
-        data.put("task-field-1", "Hello World");
-        data.put("task-field-2", "true");
-        data.put("task-field-3", "Foo Bar");
-        data.put("task-field-4", "option-2");
-        data.put("task-field-5", "Creates a mock task form.");
-        data.put("task-field-6", "option-3");
-        data.put("task-label-1", "Span Label");
-        data.put("task-label-2", "Div Label");
-        data.put("task-label-3", "Label Label");
+        data.put("TaskName", "sample-task"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-1", "Hello World"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-2", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-3", "Foo Bar"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-4", "option-2"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-5", "Creates a mock task form."); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-field-6", "option-3"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-label-1", "Span Label"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-label-2", "Div Label"); //$NON-NLS-1$ //$NON-NLS-2$
+        data.put("task-label-3", "Label Label"); //$NON-NLS-1$ //$NON-NLS-2$
         return data;
     }
 
@@ -164,10 +164,10 @@ public class MockTaskClient implements ITaskClient {
                 } else if (sortColumnId.equals(Constants.SORT_COLID_OWNER)) {
                     sortValue1 = task1.getOwner();
                     if (sortValue1 == null)
-                        sortValue1 = "";
+                        sortValue1 = ""; //$NON-NLS-1$
                     sortValue2 = task2.getOwner();
                     if (sortValue2 == null)
-                        sortValue2 = "";
+                        sortValue2 = ""; //$NON-NLS-1$
                 } else if (sortColumnId.equals(Constants.SORT_COLID_STATUS)) {
                     sortValue1 = task1.getStatus();
                     sortValue2 = task2.getStatus();
@@ -257,17 +257,17 @@ public class MockTaskClient implements ITaskClient {
     public TaskBean executeAction(TaskBean task, TaskActionEnum action) throws Exception {
         TaskBean ptask = getTask(task.getId());
         if (!task.isActionAllowed(action)) {
-            throw new Exception("Action not allowed.");
+            throw new Exception("Action not allowed."); //$NON-NLS-1$
         }
         if (action == TaskActionEnum.claim) {
-            doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release,
+            doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release, //$NON-NLS-1$
                     TaskActionEnum.start, TaskActionEnum.fail, TaskActionEnum.complete);
         } else if (action == TaskActionEnum.release) {
             doAction(ptask, null, MockTaskStatus.Ready, TaskActionEnum.claim);
         } else if (action == TaskActionEnum.start) {
-            doAction(ptask, "currentuser", MockTaskStatus.InProgress, TaskActionEnum.stop, TaskActionEnum.release, TaskActionEnum.complete, TaskActionEnum.fail);
+            doAction(ptask, "currentuser", MockTaskStatus.InProgress, TaskActionEnum.stop, TaskActionEnum.release, TaskActionEnum.complete, TaskActionEnum.fail); //$NON-NLS-1$
         } else if (action == TaskActionEnum.stop) {
-            doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release,
+            doAction(ptask, "currentuser", MockTaskStatus.Reserved, TaskActionEnum.release, //$NON-NLS-1$
                     TaskActionEnum.start, TaskActionEnum.fail, TaskActionEnum.complete);
         } else if (action == TaskActionEnum.complete) {
             doAction(ptask, null, MockTaskStatus.Completed);
@@ -276,7 +276,7 @@ public class MockTaskClient implements ITaskClient {
             doAction(ptask, null, MockTaskStatus.Failed);
             ptask.setTaskData(task.getTaskData());
         } else {
-            throw new Exception("Action " + action + " not supported.");
+            throw new Exception("Action " + action + " not supported."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return ptask;
     }
