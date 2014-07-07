@@ -126,6 +126,16 @@ public class DTGovDevServer extends ErraiDevServer {
 //        enableLiveTaskClient();
 
         configureDeploymentsUI();
+        configureQueriesUI();
+    }
+
+    /**
+     * Set up some system properties needed by the queries UI.
+     */
+    private void configureQueriesUI() {
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_GROUP_KEY, "org.overlord.dtgov"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_NAME_KEY, "dtgov-workflows"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_VERSION_KEY, "LATEST"); //$NON-NLS-1$
     }
 
     /**
