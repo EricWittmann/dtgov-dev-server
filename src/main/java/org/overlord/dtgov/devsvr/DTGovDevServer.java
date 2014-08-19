@@ -16,21 +16,31 @@
 package org.overlord.dtgov.devsvr;
 
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.security.auth.Subject;
 import javax.servlet.DispatcherType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Credential;
 import org.jboss.errai.bus.server.servlet.DefaultBlockingServlet;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener;
@@ -165,8 +175,8 @@ public class DTGovDevServer extends ErraiDevServer {
         System.setProperty(DtgovUIConfig.TASK_CLIENT_CLASS, DtGovTaskApiClient.class.getName());
         System.setProperty(DtgovUIConfig.TASK_API_ENDPOINT, "http://localhost:8080/dtgov/rest/tasks"); //$NON-NLS-1$
         System.setProperty(DtgovUIConfig.TASK_API_AUTH_PROVIDER, BasicAuthenticationProvider.class.getName());
-        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_USER, "eric"); //$NON-NLS-1$
-        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_PASS, "eric"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_USER, "admin"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.TASK_API_BASIC_AUTH_PASS, "admin"); //$NON-NLS-1$
     }
 
     /**
@@ -208,6 +218,7 @@ public class DTGovDevServer extends ErraiDevServer {
          * DTGov UI
          * ********* */
         ServletContextHandler dtgovUI = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        dtgovUI.setSecurityHandler(createSecurityHandler(true));
         dtgovUI.setContextPath("/dtgov-ui"); //$NON-NLS-1$
         dtgovUI.setWelcomeFiles(new String[] { "index.html" }); //$NON-NLS-1$
         dtgovUI.setResourceBase(environment.getModuleDir("dtgov-ui").getCanonicalPath()); //$NON-NLS-1$
@@ -247,6 +258,7 @@ public class DTGovDevServer extends ErraiDevServer {
          * S-RAMP server
          * ************* */
         ServletContextHandler srampServer = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        srampServer.setSecurityHandler(createSecurityHandler(false));
         srampServer.setContextPath("/s-ramp-server"); //$NON-NLS-1$
         ServletHolder resteasyServlet = new ServletHolder(new HttpServletDispatcher());
         resteasyServlet.setInitParameter("javax.ws.rs.Application", SRAMPApplication.class.getName()); //$NON-NLS-1$
@@ -408,6 +420,47 @@ public class DTGovDevServer extends ErraiDevServer {
         } finally {
             IOUtils.closeQuietly(is);
         }
+    }
+
+    /**
+     * @return a security handler
+     */
+    private SecurityHandler createSecurityHandler(boolean forUI) {
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__BASIC_AUTH);
+        constraint.setRoles(new String[]{"overlorduser"}); //$NON-NLS-1$
+        constraint.setAuthenticate(true);
+
+        ConstraintMapping cm = new ConstraintMapping();
+        cm.setConstraint(constraint);
+        cm.setPathSpec("/*"); //$NON-NLS-1$
+
+        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
+        csh.setSessionRenewedOnAuthentication(false);
+        csh.setAuthenticator(new BasicAuthenticator());
+        csh.setRealmName("overlord"); //$NON-NLS-1$
+        if (forUI) {
+            csh.addConstraintMapping(cm);
+        }
+        csh.setLoginService(new HashLoginService() {
+            @Override
+            public UserIdentity login(String username, Object credentials) {
+                Credential credential = (credentials instanceof Credential) ? (Credential) credentials
+                        : Credential.getCredential(credentials.toString());
+                Principal userPrincipal = new KnownUser(username, credential);
+                Subject subject = new Subject();
+                subject.getPrincipals().add(userPrincipal);
+                subject.getPrivateCredentials().add(credential);
+                String[] roles = new String[] { "overlorduser", "overlordadmin", "admin.sramp" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                for (String role : roles) {
+                    subject.getPrincipals().add(new RolePrincipal(role));
+                }
+                subject.setReadOnly();
+                return _identityService.newUserIdentity(subject, userPrincipal, roles);
+            }
+        });
+
+        return csh;
     }
 
 }
