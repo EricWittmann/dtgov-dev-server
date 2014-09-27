@@ -16,21 +16,31 @@
 package org.overlord.dtgov.devsvr;
 
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import javax.security.auth.Subject;
 import javax.servlet.DispatcherType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Credential;
 import org.jboss.errai.bus.server.servlet.DefaultBlockingServlet;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.environment.servlet.BeanManagerResourceBindingListener;
@@ -48,6 +58,7 @@ import org.overlord.commons.dev.server.discovery.WebAppModuleFromIDEDiscoveryStr
 import org.overlord.commons.gwt.server.filters.GWTCacheControlFilter;
 import org.overlord.commons.gwt.server.filters.ResourceCacheControlFilter;
 import org.overlord.commons.ui.header.OverlordHeaderDataJS;
+import org.overlord.dtgov.devsvr.mock.MockDtgovClient;
 import org.overlord.dtgov.devsvr.mock.MockTaskClient;
 import org.overlord.dtgov.ui.server.DtgovUI;
 import org.overlord.dtgov.ui.server.DtgovUIConfig;
@@ -121,9 +132,15 @@ public class DTGovDevServer extends ErraiDevServer {
         // Integrate with the s-ramp browser (not actually running - so this won't really work)
         System.setProperty(DtgovUIConfig.SRAMP_UI_URL_BASE, "http://google.com/s-ramp-ui"); //$NON-NLS-1$
 
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_GROUP_KEY, "org.overlord.dtgov"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_NAME_KEY, "dtgov-workflows"); //$NON-NLS-1$
+        System.setProperty(DtgovUIConfig.WORKFLOW_ARTIFACT_VERSION_KEY, "1.4.0-SNAPSHOT"); //$NON-NLS-1$
+        
         // Configure the task client
         enableMockTaskClient();
 //        enableLiveTaskClient();
+        
+        enableMockDtgovClient();
 
         configureDeploymentsUI();
     }
@@ -145,6 +162,10 @@ public class DTGovDevServer extends ErraiDevServer {
      */
     protected void enableMockTaskClient() {
         System.setProperty(DtgovUIConfig.TASK_CLIENT_CLASS, MockTaskClient.class.getName());
+    }
+    
+    protected void enableMockDtgovClient() {
+        System.setProperty(DtgovUIConfig.DTGOV_CLIENT_CLASS, MockDtgovClient.class.getName());
     }
 
     /**
@@ -198,6 +219,7 @@ public class DTGovDevServer extends ErraiDevServer {
          * DTGov UI
          * ********* */
         ServletContextHandler dtgovUI = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        dtgovUI.setSecurityHandler(createSecurityHandler(true));
         dtgovUI.setContextPath("/dtgov-ui"); //$NON-NLS-1$
         dtgovUI.setWelcomeFiles(new String[] { "index.html" }); //$NON-NLS-1$
         dtgovUI.setResourceBase(environment.getModuleDir("dtgov-ui").getCanonicalPath()); //$NON-NLS-1$
@@ -260,6 +282,9 @@ public class DTGovDevServer extends ErraiDevServer {
         seedTaskForm(client);
         seedDeployments(client);
         seedWorkflowQueries(client);
+        
+        // TODO deploy everying in the CLI command file
+        
         System.out.println("----------  DONE  ---------------"); //$NON-NLS-1$
         System.out.println("Now try:  \n  http://localhost:"+serverPort()+"/dtgov-ui/index.html"); //$NON-NLS-1$ //$NON-NLS-2$
         System.out.println("---------------------------------"); //$NON-NLS-1$
@@ -398,6 +423,47 @@ public class DTGovDevServer extends ErraiDevServer {
         } finally {
             IOUtils.closeQuietly(is);
         }
+    }
+
+    /**
+     * @return a security handler
+     */
+    private SecurityHandler createSecurityHandler(boolean forUI) {
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__BASIC_AUTH);
+        constraint.setRoles(new String[]{"overlorduser"}); //$NON-NLS-1$
+        constraint.setAuthenticate(true);
+
+        ConstraintMapping cm = new ConstraintMapping();
+        cm.setConstraint(constraint);
+        cm.setPathSpec("/*"); //$NON-NLS-1$
+
+        ConstraintSecurityHandler csh = new ConstraintSecurityHandler();
+        csh.setSessionRenewedOnAuthentication(false);
+        csh.setAuthenticator(new BasicAuthenticator());
+        csh.setRealmName("overlord"); //$NON-NLS-1$
+        if (forUI) {
+            csh.addConstraintMapping(cm);
+        }
+        csh.setLoginService(new HashLoginService() {
+            @Override
+            public UserIdentity login(String username, Object credentials) {
+                Credential credential = (credentials instanceof Credential) ? (Credential) credentials
+                        : Credential.getCredential(credentials.toString());
+                Principal userPrincipal = new KnownUser(username, credential);
+                Subject subject = new Subject();
+                subject.getPrincipals().add(userPrincipal);
+                subject.getPrivateCredentials().add(credential);
+                String[] roles = new String[] { "overlorduser", "overlordadmin", "admin.sramp" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                for (String role : roles) {
+                    subject.getPrincipals().add(new RolePrincipal(role));
+                }
+                subject.setReadOnly();
+                return _identityService.newUserIdentity(subject, userPrincipal, roles);
+            }
+        });
+
+        return csh;
     }
 
 }
